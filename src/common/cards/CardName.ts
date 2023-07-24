@@ -1,5 +1,6 @@
 export enum CardName {
     // Standard projects:
+    PASS_PATENTS_STANDARD_PROJECT = 'Pass Patents',
     SELL_PATENTS_STANDARD_PROJECT = 'Sell Patents',
     POWER_PLANT_STANDARD_PROJECT = 'Power Plant:SP',
     ASTEROID_STANDARD_PROJECT = 'Asteroid:SP',

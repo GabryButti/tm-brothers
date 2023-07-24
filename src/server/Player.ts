@@ -23,6 +23,7 @@ import {Resource} from '../common/Resource';
 import {CardResource} from '../common/CardResource';
 import {SelectCard} from './inputs/SelectCard';
 import {SellPatentsStandardProject} from './cards/base/standardProjects/SellPatentsStandardProject';
+import {PassPatentsStandardProject} from './cards/base/standardProjects/PassPatentsStandardProject';
 import {Priority, SimpleDeferredAction} from './deferredActions/DeferredAction';
 import {SelectPaymentDeferred} from './deferredActions/SelectPaymentDeferred';
 import {SelectProjectCardToPlay} from './inputs/SelectProjectCardToPlay';
@@ -1477,6 +1478,8 @@ export class Player implements IPlayer {
         // sell patents is not displayed as a card
         case CardName.SELL_PATENTS_STANDARD_PROJECT:
           return false;
+          case CardName.PASS_PATENTS_STANDARD_PROJECT:
+            return false;
         // For buffer gas, show ONLY IF in solo AND 63TR mode
         case CardName.BUFFER_GAS_STANDARD_PROJECT:
           return this.game.isSoloMode() && gameOptions.soloTR;
@@ -1736,6 +1739,11 @@ export class Player implements IPlayer {
     const sellPatents = new SellPatentsStandardProject();
     if (sellPatents.canAct(this)) {
       action.options.push(sellPatents.action(this));
+    }
+    //Pass patents
+    const passPatents = new PassPatentsStandardProject();
+    if (passPatents.canAct(this)) {
+      action.options.push(passPatents.action(this));
     }
 
     // Propose undo action only if you have done one action this turn

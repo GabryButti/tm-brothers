@@ -27,7 +27,7 @@ export class StandardTechnology extends Card implements IProjectCard {
     });
   }
   public onStandardProject(player: IPlayer, projectType: ICard) {
-    if (projectType.name !== CardName.SELL_PATENTS_STANDARD_PROJECT) {
+    if (projectType.name !== CardName.SELL_PATENTS_STANDARD_PROJECT && projectType.name !== CardName.PASS_PATENTS_STANDARD_PROJECT) {
       player.stock.add(Resource.MEGACREDITS, 3, {log: true});
     }
   }
