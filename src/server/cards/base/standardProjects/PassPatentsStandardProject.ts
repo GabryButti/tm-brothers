@@ -6,7 +6,7 @@ import {SelectCard} from '../../../inputs/SelectCard';
 import {IProjectCard} from '../../IProjectCard';
 import {multiplier} from '../../Options';
 import {OrOptions} from '../../../inputs/OrOptions';
-import {DrawCards} from '../../../deferredActions/DrawCards';
+import {keep} from '../../../deferredActions/ChooseCards';
 
 export class PassPatentsStandardProject extends StandardProjectCard {
   constructor() {
@@ -43,7 +43,8 @@ export class PassPatentsStandardProject extends StandardProjectCard {
       Title,
       'Pass',
       player.cardsInHand,
-      (cards) => {
+      {max: player.cardsInHand.length, played: false})
+      .andThen((cards) => {
         player.megaCredits -= cards.length;
         cards.forEach((card) => {
           for (let i = 0; i < player.cardsInHand.length; i++) {
@@ -61,11 +62,11 @@ export class PassPatentsStandardProject extends StandardProjectCard {
               if(todraw == undefined) break
               todraws.push(todraw)
             }
-            DrawCards.keep(target, todraws)
+            keep(target, todraws,[])
           this.projectPlayed(player);
           player.game.log('${0} passed ${1} patents to ' + target.name, (b) => b.player(player).number(cards.length));
           return undefined;
-      }, {max: player.cardsInHand.length, played: false},
+      }
     ));
     });
     return availableActions;
