@@ -1,21 +1,18 @@
 import {CardName} from '../../../common/cards/CardName';
 import {IPlayer} from '../../IPlayer';
-import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
-import {ICorporationCard} from '../corporation/ICorporationCard';
+import {CorporationCard} from '../corporation/CorporationCard';
 import {IProjectCard} from '../IProjectCard';
 import {CardResource} from '../../../common/CardResource';
 import {CardRenderer} from '../render/CardRenderer';
-import {Card} from '../Card';
 import {ICard} from '../ICard';
 import {Size} from '../../../common/cards/render/Size';
 import {digit} from '../Options';
 import {LogHelper} from '../../LogHelper';
 
-export class TheArchaicFoundationInstitute extends Card implements ICorporationCard {
+export class TheArchaicFoundationInstitute extends CorporationCard {
   constructor() {
     super({
-      type: CardType.CORPORATION,
       name: CardName.THE_ARCHAIC_FOUNDATION_INSTITUTE,
       tags: [Tag.MOON, Tag.MOON],
       startingMegaCredits: 55,
@@ -55,7 +52,7 @@ export class TheArchaicFoundationInstitute extends Card implements ICorporationC
   }
 
   public canAct(player: IPlayer) {
-    return (this.resourceCount >= 3 && player.canAfford(0, {tr: {tr: 1}}));
+    return (this.resourceCount >= 3 && player.canAfford({cost: 0, tr: {tr: 1}}));
   }
 
   // The only reason Archaic Foundation Institute has an action is if Reds is
@@ -65,7 +62,7 @@ export class TheArchaicFoundationInstitute extends Card implements ICorporationC
   public action(player: IPlayer) {
     // How should this interact in a Merger with UNMO?
     let tr = Math.floor(this.resourceCount / 3);
-    while (!player.canAfford(0, {tr: {tr: tr}})) {
+    while (!player.canAfford({cost: 0, tr: {tr: tr}})) {
       tr--;
     }
     player.removeResourceFrom(this, tr * 3);

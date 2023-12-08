@@ -74,6 +74,7 @@ describe('ApiGame', () => {
           'moonExpansion': false,
           'pathfindersExpansion': false,
           'preludeExtension': false,
+          'prelude2Expansion': false,
           'promoCardsOption': false,
           'politicalAgendasExtension': 'Standard',
           'removeNegativeGlobalEvents': false,
@@ -89,6 +90,7 @@ describe('ApiGame', () => {
           'undoOption': false,
           'venusNextExtension': false,
           'twoCorpsVariant': false,
+          'underworldExpansion': false,
         },
       },
     );

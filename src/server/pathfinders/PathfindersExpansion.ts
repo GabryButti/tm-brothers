@@ -1,6 +1,5 @@
 import {AddResourcesToCard} from '../deferredActions/AddResourcesToCard';
 import {CardName} from '../../common/cards/CardName';
-import {CardType} from '../../common/cards/CardType';
 import {IGame} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
 import {GrantResourceDeferred} from './GrantResourceDeferred';
@@ -51,18 +50,6 @@ export class PathfindersExpansion {
         PathfindersExpansion.raiseTrack(tag, player);
       }
     });
-
-    // Communication Center hook
-    if (card.type === CardType.EVENT) {
-      for (const p of player.game.getPlayers()) {
-        for (const c of p.playedCards) {
-          if (c.name === CardName.COMMUNICATION_CENTER) {
-            p.addResourceTo(c, {qty: 1, log: true});
-            return;
-          }
-        }
-      }
-    }
   }
 
   public static raiseTrack(tag: PlanetaryTag, player: IPlayer, steps: number = 1): void {
@@ -177,7 +164,7 @@ export class PathfindersExpansion {
     case 'delegate':
       Turmoil.ifTurmoilElse(game,
         (turmoil) => {
-          if (turmoil.hasDelegatesInReserve(player.id)) {
+          if (turmoil.hasDelegatesInReserve(player)) {
             game.defer(new SendDelegateToArea(player));
           }
         },

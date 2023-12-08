@@ -5,6 +5,16 @@ import {IPlayer} from '../IPlayer';
 import {Countable, CountableUnits} from './Countable';
 import {hasIntersection} from '../../common/utils/utils';
 import {MoonExpansion} from '../moon/MoonExpansion';
+import {CardResource} from '../../common/CardResource';
+import * as utils from '../../common/utils/utils'; // Since there's already a sum variable.
+
+/**
+ * Counts things in game state.
+ */
+export interface ICounter {
+  count(countable: Countable, context?: 'default' | 'vps'): number;
+  countUnits(countableUnits: Partial<CountableUnits>): Units;
+}
 
 /**
  * Counts things in game state.
@@ -35,7 +45,7 @@ export class Counter {
       return countable;
     }
 
-    let sum = 0;
+    let sum = countable.start ?? 0;
 
     const player = this.player;
     const card = this.card;
@@ -57,7 +67,11 @@ export class Counter {
     }
 
     if (countable.oceans !== undefined) {
-      sum += game.board.getOceanSpaces({wetlands: true}).length;
+      sum += game.board.getOceanSpaces({upgradedOceans: true, wetlands: true}).length;
+    }
+
+    if (countable.floaters !== undefined) {
+      sum += player.getResourceCount(CardResource.FLOATER);
     }
 
     if (countable.greeneries !== undefined) {
@@ -100,6 +114,16 @@ export class Counter {
       sum += card.resourceCount;
     }
 
+    if (countable.colonies !== undefined) {
+      player.game.colonies.forEach((colony) => {
+        if (countable.all) {
+          sum += colony.colonies.length;
+        } else {
+          sum += colony.colonies.filter((colony) => colony === player.id).length;
+        }
+      });
+    }
+
     if (countable.moon !== undefined) {
       const moon = countable.moon;
       MoonExpansion.ifMoon(game, (moonData) => {
@@ -121,6 +145,24 @@ export class Counter {
       }
       if (moon.road) {
         sum += MoonExpansion.spaces(game, TileType.MOON_ROAD, {surfaceOnly: true}).length;
+      }
+    }
+
+    if (countable.underworld !== undefined) {
+      const underworld = countable.underworld;
+      if (underworld.corruption !== undefined) {
+        if (countable.all === true) {
+          sum += utils.sum(game.getPlayers().map((p) => p.underworldData.corruption));
+        } else {
+          sum += player.underworldData.corruption;
+        }
+      }
+      if (underworld.excavationMarkers !== undefined) {
+        if (countable.all) {
+          sum += player.game.board.spaces.filter((space) => space.excavator !== undefined).length;
+        } else {
+          sum += player.game.board.spaces.filter((space) => space.excavator === player).length;
+        }
       }
     }
 

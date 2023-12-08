@@ -2,7 +2,7 @@ import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
 import {SelectSpace} from '../../inputs/SelectSpace';
 import {Space} from '../../boards/Space';
-import {IPlayer} from '../../IPlayer';
+import {CanAffordOptions, IPlayer} from '../../IPlayer';
 import {TileType} from '../../../common/TileType';
 import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
@@ -14,6 +14,7 @@ import {CardResource} from '../../../common/CardResource';
 import {SelectOption} from '../../inputs/SelectOption';
 import {Tile} from '../../Tile';
 import {CrashlandingBonus} from '../../pathfinders/CrashlandingBonus';
+import {message} from '../../logs/MessageBuilder';
 
 export class Crashlanding extends Card implements IProjectCard {
   constructor() {
@@ -21,6 +22,7 @@ export class Crashlanding extends Card implements IProjectCard {
       type: CardType.EVENT,
       name: CardName.CRASHLANDING,
       cost: 20,
+      tilesBuilt: [TileType.CRASHLANDING],
 
       behavior: {
         addResourcesToAnyCard: [
@@ -42,20 +44,20 @@ export class Crashlanding extends Card implements IProjectCard {
     });
   }
 
-  private playableSpaces(player: IPlayer): Array<Space> {
+  private playableSpaces(player: IPlayer, canAffordOptions?: CanAffordOptions): Array<Space> {
     const board = player.game.board;
-    const spaces = board.getAvailableSpacesOnLand(player);
+    const spaces = board.getAvailableSpacesOnLand(player, canAffordOptions);
     return spaces.filter((space) => board.getAdjacentSpaces(space).filter(Board.isCitySpace).length <= 1);
   }
 
-  public override canPlay(player: IPlayer): boolean {
-    return this.playableSpaces(player).length > 0;
+  public override bespokeCanPlay(player: IPlayer, canAffordOptions: CanAffordOptions): boolean {
+    return this.playableSpaces(player, canAffordOptions).length > 0;
   }
   public override bespokePlay(player: IPlayer) {
     return new SelectSpace(
-      'Select space for Crashlanding tile',
-      this.playableSpaces(player),
-      (space: Space) => {
+      message('Select space for ${0} tile', (b) => b.card(this)),
+      this.playableSpaces(player))
+      .andThen((space) => {
         space.adjacency = {bonus: ['callback']};
         const tile: Tile = {
           tileType: TileType.CRASHLANDING,
@@ -63,12 +65,12 @@ export class Crashlanding extends Card implements IProjectCard {
         };
         player.game.addTile(player, space, tile);
         const orOptions = new OrOptions(
-          new SelectOption('Leave as it is', '', () => {
+          new SelectOption('Leave as it is').andThen(() => {
             tile.rotated = undefined;
             this.grantPlacementBonuses(player, space);
             return undefined;
           }),
-          new SelectOption('Rotate Crashlanding', '', () => {
+          new SelectOption('Rotate Crashlanding').andThen(() => {
             tile.rotated = true;
             this.grantPlacementBonuses(player, space);
             return undefined;

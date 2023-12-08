@@ -1,19 +1,19 @@
 import {expect} from 'chai';
-import {Game} from '../../../src/server/Game';
-import {IMoonData} from '../../../src/server/moon/IMoonData';
+import {IGame} from '../../../src/server/IGame';
+import {testGame} from '../../TestGame';
+import {MoonData} from '../../../src/server/moon/MoonData';
 import {MoonExpansion} from '../../../src/server/moon/MoonExpansion';
 import {cast, runAllActions} from '../../TestingUtils';
 import {TestPlayer} from '../../TestPlayer';
 import {LunaEcumenopolis} from '../../../src/server/cards/moon/LunaEcumenopolis';
 import {TileType} from '../../../src/common/TileType';
 import {SelectSpace} from '../../../src/server/inputs/SelectSpace';
-import {testGame} from '../../TestGame';
 // import {Phase} from '../../../src/server/Phase';
 
 describe('LunaEcumenopolis', () => {
-  let game: Game;
+  let game: IGame;
   let player: TestPlayer;
-  let moonData: IMoonData;
+  let moonData: MoonData;
   let card: LunaEcumenopolis;
 
   beforeEach(() => {
@@ -75,13 +75,13 @@ describe('LunaEcumenopolis', () => {
     card.play(player);
 
     const input1 = cast(game.deferredActions.pop()!.execute(), SelectSpace);
-    expect(input1.availableSpaces.map((space) => space.id)).deep.eq(['m13', 'm18']);
+    expect(input1.spaces.map((space) => space.id)).deep.eq(['m13', 'm18']);
     input1.cb(moon.getSpace('m18'));
     expect(moonData.habitatRate).eq(3);
     expect(player.getTerraformRating()).eq(15);
 
     const input2 = cast(game.deferredActions.pop()!.execute(), SelectSpace);
-    expect(input2.availableSpaces.map((space) => space.id)).deep.eq(['m13', 'm17']);
+    expect(input2.spaces.map((space) => space.id)).deep.eq(['m13', 'm17']);
     input1.cb(moon.getSpace('m13'));
     expect(moonData.habitatRate).eq(4);
     runAllActions(game);
@@ -113,13 +113,13 @@ describe('LunaEcumenopolis', () => {
     card.play(player);
 
     const input1 = cast(game.deferredActions.pop()!.execute(), SelectSpace);
-    expect(input1.availableSpaces.map((space) => space.id)).deep.eq(['m13', 'm18']);
+    expect(input1.spaces.map((space) => space.id)).deep.eq(['m13', 'm18']);
     input1.cb(moon.getSpace('m18'));
     expect(moonData.habitatRate).eq(3);
     expect(player.getTerraformRating()).eq(15);
 
     const input2 = cast(game.deferredActions.pop()!.execute(), SelectSpace);
-    expect(input2.availableSpaces.map((space) => space.id)).deep.eq(['m13', 'm17']);
+    expect(input2.spaces.map((space) => space.id)).deep.eq(['m13', 'm17']);
     input1.cb(moon.getSpace('m13'));
     expect(moonData.habitatRate).eq(4);
     runAllActions(game);

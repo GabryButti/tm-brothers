@@ -17,7 +17,7 @@ describe('OrbitalCleanup', function() {
 
   beforeEach(function() {
     card = new OrbitalCleanup();
-    [, player] = testGame(1);
+    [/* game */, player] = testGame(1);
   });
 
   it('Can not play if cannot decrease MC production', function() {
@@ -52,7 +52,7 @@ describe('OrbitalCleanup', function() {
     const bioengineeringEnclosure = new BioengineeringEnclosure(); // Requires 1 science tag
     expect(player.simpleCanPlay(bioengineeringEnclosure)).is.false;
     setRulingParty(game, PartyName.SCIENTISTS, SCIENTISTS_POLICY_4.id); // Reduce science tag requirements by 1
-    SCIENTISTS_POLICY_4.apply(game);
+    SCIENTISTS_POLICY_4.onPolicyStart(game);
     expect(player.simpleCanPlay(bioengineeringEnclosure)).is.true;
 
     // Make sure that we do not get 1MC for the Science Ruling Policy

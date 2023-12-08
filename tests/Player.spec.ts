@@ -31,6 +31,7 @@ import {CO2Reducers} from '../src/server/cards/pathfinders/CO2Reducers';
 import {Donation} from '../src/server/cards/prelude/Donation';
 import {Loan} from '../src/server/cards/prelude/Loan';
 import {IPreludeCard} from '../src/server/cards/prelude/IPreludeCard';
+import {OrOptions} from '../src/server/inputs/OrOptions';
 
 describe('Player', function() {
   it('should initialize with right defaults', function() {
@@ -115,13 +116,13 @@ describe('Player', function() {
   it('Chains onend functions from player inputs', function(done) {
     const player = new Player('blue', Color.BLUE, false, 0, 'p-blue');
     Game.newInstance('gameid', [player], player);
-    const mockOption3 = new SelectOption('Mock select option 3', 'Save', () => {
+    const mockOption3 = new SelectOption('Mock select option 3').andThen(() => {
       return undefined;
     });
-    const mockOption2 = new SelectOption('Mock select option 2', 'Save', () => {
+    const mockOption2 = new SelectOption('Mock select option 2').andThen(() => {
       return mockOption3;
     });
-    const mockOption = new SelectOption('Mock select option', 'Save', () => {
+    const mockOption = new SelectOption('Mock select option').andThen(() => {
       return mockOption2;
     });
     player.setWaitingFor(mockOption, done);
@@ -205,8 +206,6 @@ describe('Player', function() {
       pickedCorporationCard: 'Tharsis Republic' as CardName,
       terraformRating: 20,
       corporations: [],
-      hasIncreasedTerraformRatingThisGeneration: false,
-      terraformRatingAtGenerationStart: 20,
       megaCredits: 1,
       megaCreditProduction: 2,
       steel: 3,
@@ -223,6 +222,7 @@ describe('Player', function() {
       steelValue: 14,
       canUseHeatAsMegaCredits: false,
       canUseTitaniumAsMegacredits: false,
+      canUsePlantsAsMegaCredits: false,
       actionsTakenThisRound: 15,
       actionsTakenThisGame: 30,
       actionsThisGeneration: [CardName.FACTORUM, CardName.GHG_PRODUCING_BACTERIA],
@@ -265,6 +265,7 @@ describe('Player', function() {
       } as SerializedTimer,
       totalDelegatesPlaced: 0,
       victoryPointsByGeneration: [],
+      underworldData: {corruption: 0},
     };
 
     const newPlayer = Player.deserialize(json);
@@ -371,21 +372,21 @@ describe('Player', function() {
 
     const turmoil = game.turmoil!;
 
-    expect(turmoil.usedFreeDelegateAction.has(player.id)).is.false;
+    expect(turmoil.usedFreeDelegateAction.has(player)).is.false;
 
     const freeLobbyAction = cast(getSendADelegateOption(player), SelectParty);
 
     expect(freeLobbyAction.title).eq('Send a delegate in an area (from lobby)');
-    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player.id)).eq(0);
+    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player)).eq(0);
 
     freeLobbyAction.cb(PartyName.KELVINISTS);
     runAllActions(game);
 
-    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player.id)).eq(1);
+    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player)).eq(1);
 
     // Now the free lobby action is used, only the 5MC option is available.
     player.megaCredits = 4;
-    expect(turmoil.usedFreeDelegateAction.has(player.id)).is.true;
+    expect(turmoil.usedFreeDelegateAction.has(player)).is.true;
     expect(getSendADelegateOption(player)).is.undefined;
 
     player.megaCredits = 5;
@@ -397,7 +398,7 @@ describe('Player', function() {
     runAllActions(game);
 
     expect(player.megaCredits).eq(0);
-    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player.id)).eq(2);
+    expect(turmoil.getPartyByName(PartyName.KELVINISTS).delegates.get(player)).eq(2);
   });
 
   it('Prelude action cycle', () => {
@@ -483,7 +484,7 @@ describe('Player', function() {
 });
 
 function waitingForGlobalParameters(player: Player): Array<GlobalParameter> {
-  return player.getWaitingFor()!.options!.map((o) => o.title as string).map(titlesToGlobalParameter);
+  return cast(player.getWaitingFor(), OrOptions).options.map((o) => o.title as string).map(titlesToGlobalParameter);
 }
 
 function titlesToGlobalParameter(title: string): GlobalParameter {
